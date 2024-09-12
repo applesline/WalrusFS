@@ -9,7 +9,7 @@ Imagine a decentralized file system, like a windows operating system. When I upl
 Install dependencies
 
 ```bash
-pnpm install
+cnpm install
 
 ```
 Start your WalrusFS
