@@ -1,5 +1,5 @@
 import { useCurrentAccount,useSuiClientQuery } from "@mysten/dapp-kit";
-import { Container, Flex } from "@radix-ui/themes";
+import { Container,Flex } from "@radix-ui/themes";
 import { LoadFile } from './LoadFile';
 
 export function Desktop({setHasRootDir,setCurrentDirectoryId}) {
@@ -9,7 +9,7 @@ export function Desktop({setHasRootDir,setCurrentDirectoryId}) {
     <Container my="2">
       {
         account ? (
-          <Flex direction="row">
+          <Flex direction="row" className="walrus-file-container">
             <LoadFiles address={account.address} setHasRootDir={setHasRootDir} setCurrentDirectoryId={setCurrentDirectoryId}></LoadFiles>
           </Flex>
         ) : (

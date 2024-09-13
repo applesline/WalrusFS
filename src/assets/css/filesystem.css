@@ -20,8 +20,13 @@
 
   .create-btn {
     margin-right: 10px;
+    color: #171812;
+  }
+
+  .create-txb-btn {
+    margin-right: 10px;
+    width: 100%;
     background-color: #4CAF4F;
-    color: #fff;
   }
 
   .right-clik-popup {
@@ -30,30 +35,29 @@
   
   .context-menu {
     position:fixed;
-    left: 40%;
-    top: 40%;
+    width: 100%;
+    top: 6%;
     background-color: #fff;
     border: 1px solid #ccc;
-    padding: 10px;
+    padding: 5px;
     border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    z-index: 1;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 999;
     /* opacity: 1; */
   }
-  
+
   .context-menu input {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 5px;
+    margin-bottom: 5px;
     border: 1px solid #ccc;
     border-radius: 3px;
   }
   
   .context-menu button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 20px;
-    border: none;
+    /* background-color: #fff; */
+    padding: 5px 10px;
+    border: 1px solid #ced5ce;
     border-radius: 3px;
     cursor: pointer;
     margin: auto;
@@ -105,4 +109,32 @@
     height: 20px;
     left: 0;
     right: 0;
+    word-wrap: break-word;
+  white-space: nowrap; /* 不换行 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  }
+
+  .walrus-file-container {
+    margin-top: 50px;
+    margin-right: 1vw;
+    margin-left: 1vw;
+    padding-bottom: 50px;
+    height: 80vh;
+    border: 1px solid #d9d9d9;
+    box-shadow: 2px 2px 5px rgba(0.1, 0.1, 0.1, 0.1);
+  }
+
+  input[type="file"]::file-selector-button {
+    display: none; /* 隐藏默认按钮 */
+  }
+  
+  .custom-file-upload {
+    width: 100%;
+    margin-bottom: 5px;
+    /* border: 1px solid #7cd3e4; */
+    background-color: #f3f0f0;
+    display: inline-block;
+    padding: 6px 12px;
+    cursor: pointer;
   }

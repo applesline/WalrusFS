@@ -1,4 +1,4 @@
-.context-menu {
+.right-click-popup-context-menu {
     position: absolute;
     background-color: #fff;
     border: 1px solid #ccc;
@@ -7,19 +7,19 @@
     word-wrap: break-word;
   }
   
-  .context-menu ul {
+  .right-click-popup-context-menu ul {
     list-style: none;
     padding: 0;
     margin: 0;
     word-wrap: break-word;
   }
   
-  .context-menu li {
+  .right-click-popup-context-menu li {
     padding: 5px 10px;
     cursor: pointer;
     word-wrap: break-word;
   }
   
-  .context-menu li:hover {
+  .right-click-popup-context-menu li:hover {
     background-color: #f0f0f0;
   }

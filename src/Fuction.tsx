@@ -1,20 +1,56 @@
 import { useRef,useState,useEffect} from 'react'
 import { TransactionBlock } from '@mysten/sui.js/transactions';
-import { useSignAndExecuteTransactionBlock,useSuiClientQuery } from "@mysten/dapp-kit";
+import { useSignAndExecuteTransactionBlock } from "@mysten/dapp-kit";
 
-export function Function({hasRootDir,currentDirectoryId,setCurrentDirectoryId}) {
+export function Function({hasRootDir,currentDirectoryId}) {
     const {mutate: signAndExecuteTransactionBlock} = useSignAndExecuteTransactionBlock();
     const [showCreateDirectoryForm,setShowCreateDirectoryForm] = useState(false);
     const [showCreateFileForm,setShowCreateFileForm] = useState(false);
     const txb = new TransactionBlock();
 
-    const PACKAGE_ID = "0x7a59511f38e563ea32995d2c22f340cb6c29885269dd1adecb533c1c13525688";
+    const Publisher = "https://publisher-devnet.walrus.space"
+    const PackageId = "0x7a59511f38e563ea32995d2c22f340cb6c29885269dd1adecb533c1c13525688";
+    const Module = "file_system";
 
     const contextMenuRef = useRef(null)
     const [formData, setFormData] = useState({
       blobId:'',
       fileName: ''
     });
+
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedFileName, setSelectedFileName] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const handleFileChange = (event) => {
+        setSelectedFile( event.target.files[0]);
+        setSelectedFileName(event.target.files[0].name)
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        if(selectedFile === null) return
+        setLoading(true)
+        // 创建 FormData 对象，用于将表单数据发送到服务器
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+
+        fetch(`${Publisher}/v1/store?epochs=5`, {
+            method: 'PUT',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            let blobId = data.newlyCreated.blobObject.blobId;
+            console.log('blobId=:', blobId);
+            createFileOnSui(currentDirectoryId,selectedFileName,blobId)
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        }).finally(() => {
+          setLoading(false);
+        });;
+    };
   
     const handleChange = (event) => {
       setFormData({
@@ -53,8 +89,9 @@ export function Function({hasRootDir,currentDirectoryId,setCurrentDirectoryId}) 
         {showCreateDirectoryForm && 
           (
             <div className='context-menu' ref={contextMenuRef}>
-              <input name="fileName" placeholder='Input your directory name' value={formData.fileName} onChange={handleChange}/><br/>
-              <button onClick={() => {
+              <input name="fileName" placeholder='Directory name' value={formData.fileName} onChange={handleChange}/><br/>
+              <button className='create-txb-btn' onClick={() => {
+                if(formData.fileName === "") return;
                 createDirectoryOnSui(currentDirectoryId,formData.fileName)
               }}>Create Directory</button>
             </div>
@@ -70,11 +107,14 @@ export function Function({hasRootDir,currentDirectoryId,setCurrentDirectoryId}) 
         {showCreateFileForm && 
           (
             <div className='context-menu' ref={contextMenuRef}>
-              <input name="blobId" placeholder='Input your blob_id' value={formData.blobId} onChange={handleChange}/><br/>
-              <input name="fileName" placeholder='Input your file name' value={formData.fileName} onChange={handleChange}/><br/>
-              <button onClick={() => {
-                createFileOnSui(currentDirectoryId,formData.fileName,formData.blobId)
-              }}>Create File</button>
+              <form onSubmit={handleSubmit} style={{margin:"auto"}}>
+                <label htmlFor="file-upload" className="custom-file-upload">
+                  [Select Your File]  {selectedFileName}
+                </label>
+                <input id="file-upload" type="file" onChange={handleFileChange} style={{display: "none"}}/><br/>
+                <button className='create-txb-btn' type="submit">Upload to walrus</button>
+                {loading && <div style={{textAlign:"center"}}>Uploading to walrus...</div>}
+              </form>
             </div>
           )
         }
@@ -83,49 +123,51 @@ export function Function({hasRootDir,currentDirectoryId,setCurrentDirectoryId}) 
     
     function createRootDirectoryOnSui() {
       txb.moveCall({
-        target: "0x7a59511f38e563ea32995d2c22f340cb6c29885269dd1adecb533c1c13525688::file_system::create_root_directory",
+        target: `${PackageId}::${Module}::create_root_directory`,
         arguments: []
       });
-      executeTxb(true,txb)
+      executeTxb(txb)
     }
 
     function createDirectoryOnSui(parentDirectory,name) {
       txb.moveCall({
-        target: "0x7a59511f38e563ea32995d2c22f340cb6c29885269dd1adecb533c1c13525688::file_system::create_directory",
+        target: `${PackageId}::${Module}::create_directory`,
         arguments: [txb.object(parentDirectory), txb.pure.string(name)]
       });
-      executeTxb(false,txb)
+      executeTxb(txb)
     }
 
     function createFileOnSui(parentDirectory,blobId,name) {
       txb.moveCall({
-        target: "0x7a59511f38e563ea32995d2c22f340cb6c29885269dd1adecb533c1c13525688::file_system::create_file",
+        target: `${PackageId}::${Module}::create_file`,
         arguments: [txb.object(parentDirectory),txb.pure.string(name), txb.pure.string(blobId)]
       });
-      console.log(name)
-      executeTxb(false,txb)
+      executeTxb(txb)
+      // createRootDirectoryOnSui();
     }
 
-    function executeTxb(isFirstTxb,txb) {
+    function executeTxb(txb) {
       signAndExecuteTransactionBlock(
         {transactionBlock: txb},
         {onSuccess: (result) => {
-              console.log('executed transaction block', result);
-              if(isFirstTxb) {
-                const {data} = useSuiClientQuery("getTransactionBlock",{digest:result.digest});
-                data.effects.created.map(item => {
-                  let objectData = useSuiClientQuery("getObject",{id:item.reference.objectId,options:  {"showContent":true}});
-                  // @ts-ignore
-                  if(objectData?.data?.content?.type === PACKAGE_ID + "::file_system::Directory") {
-                    // 获取创建的root directory的objectId
-                    alert(item.reference.objectId)
-                    setCurrentDirectoryId(item.reference.objectId);
-                  }
-                })
-              }
-              window.location.reload();
-            },
+            console.log('executed transaction block', result);
+            window.location.reload();
+          },
         },
-    );
+     );
     }
+
+    // function loadObjectIdWithDigest(digest) {
+    //   const {data} = useSuiClientQuery("getTransactionBlock",{digest:digest});
+    //   data.effects.created.map(item => {
+    //     let objectData = useSuiClientQuery("getObject",{id:item.reference.objectId,options:  {"showContent":true}});
+    //     // @ts-ignore
+    //     if(objectData?.data?.content?.type === `${PackageId}::${Module}::Directory`) {
+    //       // 获取创建的root directory的objectId
+    //       console.log(item.reference.objectId)
+    //       setCurrentDirectoryId(item.reference.objectId);
+    //       window.location.reload();
+    //     }
+    //   })
+    // }
   }

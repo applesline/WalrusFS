@@ -26,7 +26,7 @@ function FileSystem() {
           borderBottom: "1px solid var(--gray-a2)",
         }}>
         <Box>
-          <Function hasRootDir={hasRootDir} currentDirectoryId={currentDirectoryId} setCurrentDirectoryId={setCurrentDirectoryId}/>
+          <Function hasRootDir={hasRootDir} currentDirectoryId={currentDirectoryId}/>
         </Box>
         <Box>
           <ConnectButton />
