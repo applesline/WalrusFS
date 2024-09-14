@@ -95,11 +95,13 @@
   .folder_img {
     width: 80px;
     height: 80px;
+    opacity: 0.52; /* 设置透明度为 50% */
   }
 
   .file_img {
     width: 80px;
     height: 80px;
+    opacity: 0.52; 
   }
   
   .filename {
@@ -117,10 +119,10 @@
 
   .walrus-file-container {
     margin-top: 50px;
-    margin-right: 1vw;
-    margin-left: 1vw;
+    margin-right: 5px;
+    margin-left: 5px;
     padding-bottom: 50px;
-    height: 80vh;
+    height: 84vh;
     border: 1px solid #d9d9d9;
     box-shadow: 2px 2px 5px rgba(0.1, 0.1, 0.1, 0.1);
   }

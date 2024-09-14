@@ -21,6 +21,8 @@ export function Function({hasRootDir,currentDirectoryId}) {
     const [selectedFile, setSelectedFile] = useState(null);
     const [selectedFileName, setSelectedFileName] = useState("");
     const [loading, setLoading] = useState(false);
+    const [isErr, setIsErr] = useState(false);
+    const [tips,setTips] = useState("");
 
     const handleFileChange = (event) => {
         setSelectedFile( event.target.files[0]);
@@ -29,8 +31,19 @@ export function Function({hasRootDir,currentDirectoryId}) {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        if(selectedFile === null) return
         setLoading(true)
+        if(currentDirectoryId === "") {
+          setTips("You need create a root directory first!")
+          setIsErr(true);
+          return
+        } 
+        if(selectedFile === null) {
+          setTips("You need to select a file locally!")
+          setIsErr(true);
+          return
+        } 
+        setTips("Uploading to walrus...")
+        setIsErr(false);
         // 创建 FormData 对象，用于将表单数据发送到服务器
         const formData = new FormData();
         formData.append('file', selectedFile);
@@ -83,6 +96,7 @@ export function Function({hasRootDir,currentDirectoryId}) {
         <button className='create-btn' onClick={(event) => {
           event.preventDefault();
           setShowCreateDirectoryForm(true);
+          setLoading(false)
         }}>
           New Directory
         </button>
@@ -91,9 +105,21 @@ export function Function({hasRootDir,currentDirectoryId}) {
             <div className='context-menu' ref={contextMenuRef}>
               <input name="fileName" placeholder='Directory name' value={formData.fileName} onChange={handleChange}/><br/>
               <button className='create-txb-btn' onClick={() => {
-                if(formData.fileName === "") return;
+                if(currentDirectoryId === "") {
+                  setLoading(true);
+                  setTips("You need create a root directory first!")
+                  setIsErr(true)
+                  return;
+                }
+                if(formData.fileName === "") {
+                  setLoading(true);
+                  setTips("You need to name your folder!")
+                  setIsErr(true)
+                  return;
+                }
                 createDirectoryOnSui(currentDirectoryId,formData.fileName)
               }}>Create Directory</button>
+              {loading && <div style={{textAlign:"center",color:"red"}}>{tips}</div>}
             </div>
           )
         }
@@ -101,6 +127,7 @@ export function Function({hasRootDir,currentDirectoryId}) {
         <button className='create-btn' onClick={(event) => {
           event.preventDefault();
           setShowCreateFileForm(true);
+          setLoading(false)
         }}>
           New File
         </button>
@@ -113,7 +140,7 @@ export function Function({hasRootDir,currentDirectoryId}) {
                 </label>
                 <input id="file-upload" type="file" onChange={handleFileChange} style={{display: "none"}}/><br/>
                 <button className='create-txb-btn' type="submit">Upload to walrus</button>
-                {loading && <div style={{textAlign:"center"}}>Uploading to walrus...</div>}
+                {loading && <div style={isErr?{textAlign:"center",color:"red"}:{textAlign:"center",color:"blue"}}>{tips}</div>}
               </form>
             </div>
           )

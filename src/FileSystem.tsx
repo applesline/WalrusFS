@@ -32,7 +32,6 @@ function FileSystem() {
           <ConnectButton />
         </Box>
       </Flex>
-      <hr/>
       <Container>
         <Desktop setHasRootDir={setHasRootDir} setCurrentDirectoryId={setCurrentDirectoryId}/>
       </Container>

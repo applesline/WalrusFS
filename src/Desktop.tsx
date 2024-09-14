@@ -9,9 +9,11 @@ export function Desktop({setHasRootDir,setCurrentDirectoryId}) {
     <Container my="2">
       {
         account ? (
-          <Flex direction="row" className="walrus-file-container">
+          // <Flex direction="row" className="walrus-file-container">
+          <div className="walrus-file-container">
             <LoadFiles address={account.address} setHasRootDir={setHasRootDir} setCurrentDirectoryId={setCurrentDirectoryId}></LoadFiles>
-          </Flex>
+          </div>
+          // </Flex>
         ) : (
           <Flex direction="row">
             <div className="text-center">Wallet not connected</div>
